@@ -54,7 +54,7 @@ function autoupdate(json_url, prefix, url)
           local f = io.open(json, 'r')
           if f then
             local info = decodeJson(f:read('*a'))
-            updatelink = info.updateurl
+            updatelink = url
             updateversion = info.latest
             f:close()
             os.remove(json)
@@ -62,15 +62,15 @@ function autoupdate(json_url, prefix, url)
               lua_thread.create(function(prefix)
                 local dlstatus = require('moonloader').download_status
                 local color = -1
-                sampAddChatMessage((prefix..'РћР±РЅР°СЂСѓР¶РµРЅРѕ РѕР±РЅРѕРІР»РµРЅРёРµ. РџС‹С‚Р°СЋСЃСЊ РѕР±РЅРѕРІРёС‚СЊСЃСЏ c '..thisScript().version..' РЅР° '..updateversion), color)
+                sampAddChatMessage((prefix..'Обнаружено обновление. Пытаюсь обновиться c '..thisScript().version..' на '..updateversion), color)
                 wait(250)
                 downloadUrlToFile(updatelink, thisScript().path,
                   function(id3, status1, p13, p23)
                     if status1 == dlstatus.STATUS_DOWNLOADINGDATA then
-                      print(string.format('Р—Р°РіСЂСѓР¶РµРЅРѕ %d РёР· %d.', p13, p23))
+                      print(string.format('Загружено %d из %d.', p13, p23))
                     elseif status1 == dlstatus.STATUS_ENDDOWNLOADDATA then
-                      print('Р—Р°РіСЂСѓР·РєР° РѕР±РЅРѕРІР»РµРЅРёСЏ Р·Р°РІРµСЂС€РµРЅР°.')
-                      sampAddChatMessage((prefix..'РћР±РЅРѕРІР»РµРЅРёРµ Р·Р°РІРµСЂС€РµРЅРѕ!'), color)
+                      print('Загрузка обновления завершена.')
+                      sampAddChatMessage((prefix..'Обновление завершено!'), color)
                       
                       ini.main.version = thisScript().version
                       inicfg.save(ini, directIni)
@@ -80,7 +80,7 @@ function autoupdate(json_url, prefix, url)
                     end
                     if status1 == dlstatus.STATUSEX_ENDDOWNLOAD then
                       if goupdatestatus == nil then
-                        sampAddChatMessage((prefix..'РћР±РЅРѕРІР»РµРЅРёРµ РїСЂРѕС€Р»Рѕ РЅРµСѓРґР°С‡РЅРѕ. Р—Р°РїСѓСЃРєР°СЋ СѓСЃС‚Р°СЂРµРІС€СѓСЋ РІРµСЂСЃРёСЋ..'), color)
+                        sampAddChatMessage((prefix..'Обновление прошло неудачно. Запускаю устаревшую версию..'), color)
                         update = false
                       end
                     end
@@ -90,11 +90,11 @@ function autoupdate(json_url, prefix, url)
               )
             else
               update = false
-              print('v'..thisScript().version..': РћР±РЅРѕРІР»РµРЅРёРµ РЅРµ С‚СЂРµР±СѓРµС‚СЃСЏ.')
+              print('v'..thisScript().version..': Обновление не требуется.')
             end
           end
         else
-          print('v'..thisScript().version..': РќРµ РјРѕРіСѓ РїСЂРѕРІРµСЂРёС‚СЊ РѕР±РЅРѕРІР»РµРЅРёРµ. РЎРјРёСЂРёС‚РµСЃСЊ РёР»Рё РїСЂРѕРІРµСЂСЊС‚Рµ СЃР°РјРѕСЃС‚РѕСЏС‚РµР»СЊРЅРѕ РЅР° '..url)
+          print('v'..thisScript().version..': Не могу проверить обновление. Смиритесь или проверьте самостоятельно на '..url)
           update = false
         end
       end
@@ -133,15 +133,15 @@ function main()
 
         if isKeyJustPressed(vkeys.VK_F10) then -- 
             if status_space == 1 then
-                printStyledString(cyrillic('status_space Р’С‹РєСЋС‡РµРЅ'), 500, 6)
-                sampAddChatMessage(("status_space Р’С‹РєСЋС‡РµРЅ"), 0xFFFFC801)
+                printStyledString(cyrillic('status_space Выкючен'), 500, 6)
+                sampAddChatMessage(("status_space Выкючен"), 0xFFFFC801)
                 status_space = 0
                 wait(200)
                 return 1
             end
             if status_space == 0 then
-                printStyledString(cyrillic('status_space РђРєС‚РёРІРёСЂРѕРІР°РЅ'), 500, 6)
-                sampAddChatMessage(("status_space РђРєС‚РёРІРёСЂРѕРІР°РЅ"), 0xFFFFC801)
+                printStyledString(cyrillic('status_space Активирован'), 500, 6)
+                sampAddChatMessage(("status_space Активирован"), 0xFFFFC801)
                 status_space = 1
                 wait(200)
                 return 1
@@ -149,9 +149,9 @@ function main()
         end
 
         if status_space == 1 then
-            setVirtualKeyDown(32, true) -- РќР°Р¶Р°С‚РёРµ (Space)
-            wait(0.1) -- Р—Р°РґРµСЂР¶РєР°
-            setVirtualKeyDown(32, false) -- РћС‚РїСѓСЃРє РєРЅРѕРїРєРё (Space)
+            setVirtualKeyDown(32, true) -- Нажатие (Space)
+            wait(0.1) -- Задержка
+            setVirtualKeyDown(32, false) -- Отпуск кнопки (Space)
         end
 
         --
@@ -162,16 +162,16 @@ function main()
         if isKeyJustPressed(vkeys.VK_INSERT) then -- 
             checkKey()
             if status == 1 then
-                printStyledString(cyrillic('IC Р’С‹РєСЋС‡РµРЅ'), 500, 6)
-                sampAddChatMessage(("IC Р’С‹РєСЋС‡РµРЅ"), 0xFFFFC801)
+                printStyledString(cyrillic('IC Выкючен'), 500, 6)
+                sampAddChatMessage(("IC Выкючен"), 0xFFFFC801)
                 status = 0
 
                 wait(200)
                 return 1
             end
             if status == 0 and key_active == true then
-                printStyledString(cyrillic('IC РђРєС‚РёРІРёСЂРѕРІР°РЅ'), 500, 6)
-                sampAddChatMessage(("IC РђРєС‚РёРІРёСЂРѕРІР°РЅ"), 0xFFFFC801)
+                printStyledString(cyrillic('IC Активирован'), 500, 6)
+                sampAddChatMessage(("IC Активирован"), 0xFFFFC801)
                 status = 1
 
                 wait(200)
@@ -183,13 +183,13 @@ end
 
 function checkKey()
         response = requests.get('https://arz-sakura.cf/ic.php?code='..key.v)
-        if not response.text:match("<body>(.*)</body>"):find("-1") then -- Р•СЃР»Рё РєР»СЋС‡ РµСЃС‚СЊ РІ Р±Рґ
-            if not response.text:match("<body>(.*)</body>"):find("The duration of the key has expired.") then -- Р•СЃР»Рё СЃРµСЂРІРµСЂ РЅРµ РѕС‚РІРµС‚РёР» С‡С‚Рѕ РєР»СЋС‡ РёСЃС‚РµРє.
-                sampAddChatMessage("Р”Рѕ РѕРєРѕРЅС‡Р°РЅРёСЏ Р»РёС†РµРЅР·РёРё РѕСЃС‚Р°Р»РѕСЃСЊ:"..response.text:match("<body>(.*)</body>"), -1) --  Р’С‹РІРѕРґРёРј РєРѕР»-РІРѕ РґРЅРµР№ РґРѕ РєРѕРЅС†Р° Р»РёС†РµРЅР·РёРё
+        if not response.text:match("<body>(.*)</body>"):find("-1") then -- Если ключ есть в бд
+            if not response.text:match("<body>(.*)</body>"):find("The duration of the key has expired.") then -- Если сервер не ответил что ключ истек.
+                sampAddChatMessage("До окончания лицензии осталось:"..response.text:match("<body>(.*)</body>"), -1) --  Выводим кол-во дней до конца лицензии
                 key_active = true
             end
         else
-            sampAddChatMessage("РљР»СЋС‡ РЅРµ Р°РєС‚РёРІРёСЂРѕРІР°РЅ.", -1)
+            sampAddChatMessage("Ключ не активирован.", -1)
             key_active = false
         end
 end
@@ -207,13 +207,13 @@ end
 
 function SE.onServerMessage(color, text, lcbk1)
     if status == 1 then
-        if text:find("РїРѕРґР°Р» Р·Р°СЏРІР»РµРЅРёРµ РЅР° СЃС‚СЂР°С…РѕРІР°РЅРёРµ РёРјСѓС‰РµСЃС‚РІР°, РЅРѕРјРµСЂ Р·Р°СЏРІР»РµРЅРёСЏ") then
+        if text:find("подал заявление на страхование имущества, номер заявления") then
             lua_thread.create(function()
                 wait(delay.v)
                 
-                setVirtualKeyDown(18, true) -- РќР°Р¶Р°С‚РёРµ (Space)
-                wait(0.1) -- Р—Р°РґРµСЂР¶РєР°
-                setVirtualKeyDown(18, false) -- РћС‚РїСѓСЃРє РєРЅРѕРїРєРё (Space)
+                setVirtualKeyDown(18, true) -- Нажатие (Space)
+                wait(0.1) -- Задержка
+                setVirtualKeyDown(18, false) -- Отпуск кнопки (Space)
                 
                 started = 1
                 wait(1100)
@@ -259,24 +259,24 @@ function imgui.OnDrawFrame()
     imgui.SetNextWindowSize(imgui.ImVec2(400, 250), imgui.Cond.FirstUseEver)
     imgui.Begin(u8"IC SCRIPT", main_window_state)
     imgui.PushItemWidth(150)
-    imgui.InputText(u8"Р’Р°С€ РєР»СЋС‡", key)
+    imgui.InputText(u8"Ваш ключ", key)
     imgui.PopItemWidth()
     imgui.Spacing()
     imgui.PushItemWidth(150)
-    imgui.InputInt(u8'Р—Р°РґРµСЂР¶РєР° РІ РјРёР»РёСЃРёРєСѓРЅРґР°С…', delay)
+    imgui.InputInt(u8'Задержка в милисикундах', delay)
     imgui.PopItemWidth()
     imgui.Spacing()
-    imgui.Text(delay.v .. "" .. u8" РјРёР»РёСЃРёРєСѓРЅРґ = " .. '' .. delay.v/1000 .. u8" СЃРµРєСѓРЅРґ")
+    imgui.Text(delay.v .. "" .. u8" милисикунд = " .. '' .. delay.v/1000 .. u8" секунд")
     imgui.NewLine()
 
     imgui.PushItemWidth(150)
-    imgui.InputInt(u8'РќРѕРјРµСЂ СЃС‚СЂРѕРєРё', stroka)
+    imgui.InputInt(u8'Номер строки', stroka)
     imgui.PopItemWidth()
     imgui.Spacing()
-    imgui.Text(u8"РќРѕРјРµСЂ СЃС‚СЂРѕРєРё " .. '' .. stroka.v)
+    imgui.Text(u8"Номер строки " .. '' .. stroka.v)
     imgui.NewLine()
 
-    imgui.Text(u8'Р”Р»СЏ Р°РєС‚РёРІР°С†РёРё Р°РІС‚Рѕ Р»РѕРІР»Рё РЅР°Р¶РјРёС‚Рµ РєРЅРѕРїРєСѓ "INSERT"') 
+    imgui.Text(u8'Для активации авто ловли нажмите кнопку "INSERT"') 
 
     imgui.End()
 end
