@@ -72,7 +72,7 @@ function autoupdate(json_url, prefix, url)
                       print('Загрузка обновления завершена.')
                       sampAddChatMessage((prefix..'Обновление завершено!'), color)
                       
-                      ini.main.version = thisScript().version
+                      ini.main.version = updateversion
                       inicfg.save(ini, directIni)
                       
                       goupdatestatus = true
